@@ -131,8 +131,10 @@ body {
 
 .image-wrapper {
   display: flex;
+  flex-direction: column; /* MEMAKSA GAMBAR TERSUSUN KE BAWAH */
   justify-content: center;
   align-items: center;
+  gap: 15px;              /* Memberi jarak antar gambar 1 dan gambar 2 */
   overflow: hidden;
   border: 1px solid #cbd5e1;
   border-radius: 6px;
