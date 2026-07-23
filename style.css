@@ -131,10 +131,10 @@ body {
 
 .image-wrapper {
   display: flex;
-  flex-direction: column; /* MEMAKSA GAMBAR TERSUSUN KE BAWAH */
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  gap: 15px;              /* Memberi jarak antar gambar 1 dan gambar 2 */
+  gap: 15px;
   overflow: hidden;
   border: 1px solid #cbd5e1;
   border-radius: 6px;
@@ -143,10 +143,14 @@ body {
 }
 
 .kir-image {
-  max-width: 100%;
+  width: auto;                  /* Biarkan lebar menyesuaikan proporsi */
+  max-width: 100%;              /* Mencegah gambar kebablasan keluar dari kotak */
   height: auto;
-  display: block;
   border-radius: 4px;
+
+  /* TEKNIK CSS UNTUK MENAJAMKAN RENDERING GAMBAR */
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
 }
 
 /* FOOTER */
