@@ -10,19 +10,19 @@
 
   <!-- HEADER -->
   <header class="site-header">
-    <div class="logo-box logo-left">
-      <!-- Ganti dengan logo instansi sebelah kiri -->
-      <img src="kotaserang.png" alt="Logo Kiri">
-    </div>
-    
-    <div class="header-title">
-      <h1>KARTU INVENTARIS RUANGAN (KIR)</h1>
-      <p>Satuan Polisi Pamong Praja Kota Serang</p>
-    </div>
+    <div class="header-container">
+      <div class="logo-box logo-left">
+        <img src="kotaserang.png" alt="Logo Kiri">
+      </div>
+      
+      <div class="header-title">
+        <h1>KARTU INVENTARIS RUANGAN (KIR)</h1>
+        <p>Satuan Polisi Pamong Praja Kota Serang</p>
+      </div>
 
-    <div class="logo-box logo-right">
-      <!-- Ganti dengan logo instansi sebelah kanan -->
-      <img src="polpp.png" alt="Logo Kanan">
+      <div class="logo-box logo-right">
+        <img src="polpp.png" alt="Logo Kanan">
+      </div>
     </div>
   </header>
 
@@ -31,7 +31,7 @@
     <div class="nav-container">
       <span class="nav-label">Pilih Ruangan:</span>
       <ul class="nav-menu">
-        <li><a href="kir-kasat.html">KASAT</a></li>
+        <li><a href="index.html" class="active">KASAT</a></li>
         <li><a href="kir-umpeg.html">UMPEG</a></li>
         <li><a href="kir-keuangan.html">KEUANGAN</a></li>
         <li><a href="kir-sekretaris.html">SEKRETARIS</a></li>
@@ -54,9 +54,17 @@
       <div class="card-header">
         <h2>RUANGAN RAPAT</h2>
       </div>
-      <div class="image-wrapper">
-        <!-- Ganti 'kir-kasat.png' dengan gambar/scan KIR sesuai ruangan -->
-        <img src="rapat.png" alt="Gambar Kartu Inventaris Ruang RAPAT" class="kir-image">
+      
+      <!-- WRAPPER GAMBAR DUA LEMBAR (ATAS-BAWAH) -->
+      <div class="image-wrapper stack-layout">
+        
+        <!-- Lembar 1 -->
+        <div class="kir-item">
+          <span class="page-label">Lembar 1</span>
+          <img src="rapat.png" alt="Gambar KIR Ruang RAPAT Lembar 1" class="kir-image">
+        </div>
+        
+
       </div>
     </section>
   </main>
