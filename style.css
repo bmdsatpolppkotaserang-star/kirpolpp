@@ -18,11 +18,16 @@ body {
 .site-header {
   background-color: #ffffff;
   border-bottom: 3px solid #0056b3;
-  padding: 15px 30px;
+  padding: 15px 20px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.header-container {
+  max-width: 1200px;
+  margin: 0 auto;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
 }
 
 .logo-box img {
@@ -33,7 +38,6 @@ body {
 
 .header-title {
   text-align: center;
-  flex-grow: 1;
   padding: 0 15px;
 }
 
@@ -53,7 +57,7 @@ body {
 /* NAVIGASI MENU RUANGAN */
 .site-nav {
   background-color: #1e293b;
-  padding: 10px 20px;
+  padding: 12px 20px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
@@ -61,9 +65,9 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 15px;
-  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .nav-label {
@@ -72,19 +76,22 @@ body {
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  text-align: center;
 }
 
 .nav-menu {
   list-style: none;
   display: flex;
   flex-wrap: wrap;
+  justify-content: center;
   gap: 8px;
+  width: 100%;
 }
 
 .nav-menu li a {
   display: inline-block;
   padding: 6px 14px;
-  background-color: #334155; /* Warna asli tombol */
+  background-color: #334155;
   color: #f8fafc;
   text-decoration: none;
   font-size: 0.85rem;
@@ -94,14 +101,14 @@ body {
 }
 
 .nav-menu li a:hover {
-  background-color: #0284c7; /* Berubah jadi biru muda saat disorot */
-  color: #ffffff;
+  background-color: #0284c7;
   color: #ffffff;
 }
 
 .nav-menu li a.active {
-  background-color: #003e80; /* Berubah jadi biru gelap pas ditekan */
-  transform: scale(0.96);    /* Memberi efek tombol sedikit amblas/tertekan */
+  background-color: #003e80;
+  font-weight: bold;
+  transform: scale(0.96);
 }
 
 /* MAIN CONTENT */
@@ -124,33 +131,44 @@ body {
 .card-header h2 {
   font-size: 1.25rem;
   color: #1e293b;
-  margin-bottom: 20px;
+  margin-bottom: 25px;
   border-bottom: 2px solid #e2e8f0;
   padding-bottom: 12px;
 }
 
-.image-wrapper {
+/* TAMPILAN GAMBAR ATAS-BAWAH (STACK LAYOUT) */
+.image-wrapper.stack-layout {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  gap: 15px;
-  overflow: hidden;
-  border: 1px solid #cbd5e1;
-  border-radius: 6px;
-  padding: 10px;
-  background-color: #f8fafc;
+  gap: 30px; /* Jarak antara Lembar 1 dan Lembar 2 */
+}
+
+.kir-item {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.page-label {
+  font-weight: 700;
+  color: #0056b3;
+  font-size: 0.85rem;
+  margin-bottom: 10px;
+  background-color: #e2e8f0;
+  padding: 4px 16px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 .kir-image {
-  width: auto;                  /* Biarkan lebar menyesuaikan proporsi */
-  max-width: 100%;              /* Mencegah gambar kebablasan keluar dari kotak */
+  max-width: 100%;
   height: auto;
-  border-radius: 4px;
-
-  /* TEKNIK CSS UNTUK MENAJAMKAN RENDERING GAMBAR */
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.08);
 }
 
 /* FOOTER */
@@ -165,7 +183,7 @@ body {
 
 /* RESPONSIVE DESIGN */
 @media (max-width: 768px) {
-  .site-header {
+  .header-container {
     flex-direction: column;
     text-align: center;
     gap: 12px;
@@ -181,15 +199,6 @@ body {
 
   .header-title p {
     font-size: 0.8rem;
-  }
-
-  .nav-container {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .nav-menu {
-    width: 100%;
   }
 
   .nav-menu li a {
