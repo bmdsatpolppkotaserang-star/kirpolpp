@@ -243,7 +243,10 @@
       background-color: rgba(15, 23, 42, 0.96);
       backdrop-filter: blur(5px);
       overflow: hidden;
-      touch-action: none; /* Penting untuk Pinch Zoom */
+      /* Dilarang menggerakkan gestures bawaan HP */
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
     }
 
     .modal-overlay.active {
@@ -335,7 +338,7 @@
       justify-content: center;
       align-items: center;
       overflow: hidden;
-      touch-action: none; /* Penting untuk gesture sentuh HP */
+      touch-action: none;
     }
 
     .panzoom-wrapper {
@@ -345,7 +348,7 @@
       justify-content: center;
       align-items: center;
       will-change: transform;
-      touch-action: none; /* Mencegah geser layar browser */
+      touch-action: none;
     }
 
     .panzoom-wrapper img {
@@ -354,6 +357,7 @@
       object-fit: contain;
       border-radius: 4px;
       box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+      touch-action: none;
     }
 
     /* FOOTER */
@@ -500,6 +504,7 @@
       if (panzoomInstance) {
         try {
           viewportContainer.removeEventListener('wheel', panzoomInstance.zoomWithWheel);
+          target.removeEventListener('pointerdown', handlePointerDown);
           panzoomInstance.destroy();
         } catch (err) {
           console.warn('Cleanup error:', err);
@@ -508,21 +513,32 @@
       }
     }
 
+    // Handler khusus untuk memaksa pointer event bekerja dengan Panzoom (Pinch Zoom Fix)
+    function handlePointerDown(event) {
+      if (panzoomInstance) {
+        panzoomInstance.handleDown(event);
+      }
+    }
+
     function initPanzoom() {
       cleanupPanzoom();
       
       panzoomInstance = Panzoom(target, {
-        maxScale: 4,
+        maxScale: 5,
         minScale: 1,
         contain: 'outside',
         startScale: 1,
         cursor: 'move',
         step: 0.3,
-        pinchAndPan: true,   // Mengaktifkan Pinch Zoom dua jari
-        disableTouch: false  // Mengaktifkan gesture sentuh
+        canvas: true,
+        excludeClass: 'modal-controls'
       });
 
+      // Hubungkan Event Wheel (Mouse Desktop)
       viewportContainer.addEventListener('wheel', panzoomInstance.zoomWithWheel, { passive: true });
+      
+      // Hubungkan Event Pointer (Sentuhan Layar HP & Pinch Zoom)
+      target.addEventListener('pointerdown', handlePointerDown, { passive: false });
     }
 
     function zoomInSafe() { if (panzoomInstance) panzoomInstance.zoomIn(); }
@@ -566,9 +582,9 @@
       document.getElementById('modal-zoom').classList.add('active');
       document.body.style.overflow = 'hidden';
 
-      requestAnimationFrame(() => {
+      setTimeout(() => {
         initPanzoom();
-      });
+      }, 50);
     }
 
     function pindahLembarModal(direction) {
