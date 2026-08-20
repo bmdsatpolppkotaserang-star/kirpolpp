@@ -10,8 +10,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- Panzoom Library -->
-  <script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
+  <!-- Panzoom Library (File Lokal) -->
+  <script src="panzoom.min.js"></script>
 
   <style>
     /* RESET & BASE STYLES */
@@ -211,7 +211,6 @@
       border-radius: 8px;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
       transition: transform 0.2s ease;
-      /* Ringan di RAM */
       will-change: transform;
     }
 
@@ -294,7 +293,6 @@
       background: #dc2626;
     }
 
-    /* TOMBOL NAVIGASI LEMBAR DALAM MODAL */
     .modal-nav-btn {
       position: absolute;
       top: 50%;
@@ -464,7 +462,6 @@
 
   <!-- MODAL FULLSCREEN ZOOM -->
   <div id="modal-zoom" class="modal-overlay">
-    <!-- Kontrol Atas -->
     <div class="modal-controls">
       <button class="modal-btn" onclick="zoomInSafe()">➕ Zoom In</button>
       <button class="modal-btn" onclick="zoomOutSafe()">➖ Zoom Out</button>
@@ -473,7 +470,6 @@
       <button class="modal-btn close-btn" onclick="tutupZoom()">✖ Tutup (Esc)</button>
     </div>
 
-    <!-- Navigasi Panah Samping (Layar Modal) -->
     <button class="modal-nav-btn modal-nav-prev" id="btn-modal-prev" onclick="pindahLembarModal(-1)">❮</button>
     <button class="modal-nav-btn modal-nav-next" id="btn-modal-next" onclick="pindahLembarModal(1)">❯</button>
 
@@ -489,7 +485,7 @@
     <p>&copy; 2026 BMD Satpol PP Kota Serang | Hak Cipta Dilindungi</p>
   </footer>
 
-  <!-- JAVASCRIPT MEMORY OPTIMIZED ENGINE -->
+  <!-- JAVASCRIPT ENGINE -->
   <script>
     let panzoomInstance = null;
     let lembarAktifModal = 1;
@@ -499,7 +495,6 @@
     const viewportContainer = document.getElementById('viewport-container');
     const imgModalTarget = document.getElementById('img-modal-target');
 
-    // Fungsi pembersihan memori Panzoom & Event Wheel
     function cleanupPanzoom() {
       if (panzoomInstance) {
         try {
@@ -513,7 +508,7 @@
     }
 
     function initPanzoom() {
-      cleanupPanzoom(); // Hapus instance lama dari RAM
+      cleanupPanzoom();
       
       panzoomInstance = Panzoom(target, {
         maxScale: 4,
@@ -548,7 +543,7 @@
         labelLembar1.innerText = 'Lembar 1';
         totalLembarRuangan = 2;
       } else {
-        img2.src = ''; // Kosongkan src untuk melepas memori RAM
+        img2.src = '';
         containerLembar2.style.display = 'none';
         labelLembar1.style.display = 'none';
         totalLembarRuangan = 1;
@@ -568,7 +563,6 @@
       document.getElementById('modal-zoom').classList.add('active');
       document.body.style.overflow = 'hidden';
 
-      // Inisialisasi setelah modal terlihat sempurna
       requestAnimationFrame(() => {
         initPanzoom();
       });
@@ -609,9 +603,8 @@
       document.getElementById('modal-zoom').classList.remove('active');
       document.body.style.overflow = 'auto';
 
-      // PEMBERSIHAN MEMORI RAM (GARBAGE COLLECTION BROWSER)
       cleanupPanzoom();
-      imgModalTarget.src = ''; // Putus tautan gambar dari layar
+      imgModalTarget.src = '';
     }
 
     document.addEventListener('keydown', function(e) {
