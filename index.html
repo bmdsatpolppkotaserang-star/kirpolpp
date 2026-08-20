@@ -205,12 +205,108 @@
       letter-spacing: 0.5px;
     }
 
+    /* Container untuk Hover & Klik Zoom */
+    .image-container {
+      position: relative;
+      cursor: zoom-in;
+      display: inline-block;
+      max-width: 100%;
+    }
+
     .kir-image {
       max-width: 100%;
       height: auto;
       border: 1px solid #cbd5e1;
       border-radius: 8px;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+      transition: transform 0.2s ease;
+    }
+
+    .image-container:hover .kir-image {
+      transform: scale(1.01);
+    }
+
+    .zoom-hint {
+      position: absolute;
+      bottom: 12px;
+      right: 12px;
+      background: rgba(15, 23, 42, 0.75);
+      color: #fff;
+      font-size: 0.75rem;
+      padding: 6px 12px;
+      border-radius: 20px;
+      backdrop-filter: blur(4px);
+      pointer-events: none;
+    }
+
+    /* MODAL LIGHTBOX (PERBESAR FULLSCREEN) */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      z-index: 9999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(5px);
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-controls {
+      position: absolute;
+      top: 20px;
+      display: flex;
+      gap: 10px;
+      z-index: 10000;
+    }
+
+    .modal-btn {
+      background: #1e293b;
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      padding: 8px 16px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .modal-btn:hover {
+      background: #0284c7;
+    }
+
+    .modal-btn.close-btn {
+      background: #ef4444;
+      border-color: #ef4444;
+    }
+
+    .modal-btn.close-btn:hover {
+      background: #dc2626;
+    }
+
+    .modal-img-wrapper {
+      max-width: 90vw;
+      max-height: 85vh;
+      overflow: auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-img-wrapper img {
+      max-width: 100%;
+      max-height: 85vh;
+      transition: transform 0.15s ease-out;
+      border-radius: 6px;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
     }
 
     /* FOOTER */
@@ -242,6 +338,8 @@
       .card-container { padding: 15px 10px; }
       .card-header h2 { font-size: 1.1rem; }
       .nav-menu li button { font-size: 0.75rem; padding: 5px 10px; }
+      .modal-controls { top: 10px; flex-wrap: wrap; justify-content: center; }
+      .modal-btn { padding: 6px 12px; font-size: 0.75rem; }
     }
   </style>
 </head>
@@ -271,21 +369,19 @@
     <div class="nav-container">
       <span class="nav-label">📍 Pilih Ruangan Kerja:</span>
       <ul class="nav-menu">
-        <!-- format gantiRuangan('NAMA', 'gambar1.png', 'gambar2.png') -->
-        <!-- Jika hanya 1 lembar, isi parameter ketiga dengan '' atau null -->
-        <li><button class="nav-btn active" onclick="gantiRuangan('KASAT', 'kasat.png', '')">KASAT</button></li>
-        <li><button class="nav-btn" onclick="gantiRuangan('UMPEG', 'umpeg-1.png', 'umpeg-2.png')">UMPEG</button></li>
-        <li><button class="nav-btn" onclick="gantiRuangan('KEUANGAN', 'keuangan-1.png', 'keuangan-2.png')">KEUANGAN</button></li>
-        <li><button class="nav-btn" onclick="gantiRuangan('SEKRETARIS', 'sekretaris.png', '')">SEKRETARIS</button></li>
-        <li><button class="nav-btn" onclick="gantiRuangan('LINMAS', 'linmas-1.png', 'linmas-2.png')">LINMAS</button></li>
-        <li><button class="nav-btn" onclick="gantiRuangan('TRANTIBUM', 'trantibum-1.png', 'trantibum-2.png')">TRANTIBUM</button></li>
-        <li><button class="nav-btn" onclick="gantiRuangan('ASET', 'aset-1.png', 'aset-2.png')">ASET</button></li>
-        <li><button class="nav-btn" onclick="gantiRuangan('GUDANG', 'gudang-1.png', 'gudang-2.png')">GUDANG</button></li>
-        <li><button class="nav-btn" onclick="gantiRuangan('RAPAT', 'rapat.png', '')">RAPAT</button></li>
-        <li><button class="nav-btn" onclick="gantiRuangan('PPNS', 'ppns.png', '')">PPNS</button></li>
-        <li><button class="nav-btn" onclick="gantiRuangan('DALOPS', 'dalops.png', '')">DALOPS</button></li>
-        <li><button class="nav-btn" onclick="gantiRuangan('PEP', 'pep.png', '')">PEP</button></li>
-        <li><button class="nav-btn" onclick="gantiRuangan('RESEPSIONIS', 'resepsionis.png', '')">RESEPSIONIS</button></li>
+        <li><button class="nav-btn active" onclick="gantiRuangan('KASAT', 'kasat.png', '', event)">KASAT</button></li>
+        <li><button class="nav-btn" onclick="gantiRuangan('UMPEG', 'umpeg-1.png', 'umpeg-2.png', event)">UMPEG</button></li>
+        <li><button class="nav-btn" onclick="gantiRuangan('KEUANGAN', 'keuangan-1.png', 'keuangan-2.png', event)">KEUANGAN</button></li>
+        <li><button class="nav-btn" onclick="gantiRuangan('SEKRETARIS', 'sekretaris.png', '', event)">SEKRETARIS</button></li>
+        <li><button class="nav-btn" onclick="gantiRuangan('LINMAS', 'linmas-1.png', 'linmas-2.png', event)">LINMAS</button></li>
+        <li><button class="nav-btn" onclick="gantiRuangan('TRANTIBUM', 'trantibum-1.png', 'trantibum-2.png', event)">TRANTIBUM</button></li>
+        <li><button class="nav-btn" onclick="gantiRuangan('ASET', 'aset-1.png', 'aset-2.png', event)">ASET</button></li>
+        <li><button class="nav-btn" onclick="gantiRuangan('GUDANG', 'gudang-1.png', 'gudang-2.png', event)">GUDANG</button></li>
+        <li><button class="nav-btn" onclick="gantiRuangan('RAPAT', 'rapat.png', '', event)">RAPAT</button></li>
+        <li><button class="nav-btn" onclick="gantiRuangan('PPNS', 'ppns.png', '', event)">PPNS</button></li>
+        <li><button class="nav-btn" onclick="gantiRuangan('DALOPS', 'dalops.png', '', event)">DALOPS</button></li>
+        <li><button class="nav-btn" onclick="gantiRuangan('PEP', 'pep.png', '', event)">PEP</button></li>
+        <li><button class="nav-btn" onclick="gantiRuangan('RESEPSIONIS', 'resepsionis.png', '', event)">RESEPSIONIS</button></li>
       </ul>
     </div>
   </nav>
@@ -300,30 +396,51 @@
       <!-- WRAPPER GAMBAR (ATAS-BAWAH) -->
       <div class="image-wrapper stack-layout">
         
-        <!-- Lembar 1 (Selalu Muncul) -->
+        <!-- Lembar 1 -->
         <div class="kir-item" id="container-lembar-1">
           <span class="page-label" id="label-lembar-1">Lembar 1</span>
-          <img id="gambar-kir-1" src="kasat.png" alt="Gambar KIR Lembar 1" class="kir-image">
+          <div class="image-container" onclick="bukaZoom('gambar-kir-1')">
+            <img id="gambar-kir-1" src="kasat.png" alt="Gambar KIR Lembar 1" class="kir-image" loading="lazy">
+            <span class="zoom-hint">🔍 Klik untuk Perbesar</span>
+          </div>
         </div>
 
-        <!-- Lembar 2 (Otomatis Sembunyi Jika Tidak Ada Gambar) -->
+        <!-- Lembar 2 -->
         <div class="kir-item" id="container-lembar-2" style="display: none;">
           <span class="page-label">Lembar 2</span>
-          <img id="gambar-kir-2" src="" alt="Gambar KIR Lembar 2" class="kir-image">
+          <div class="image-container" onclick="bukaZoom('gambar-kir-2')">
+            <img id="gambar-kir-2" src="" alt="Gambar KIR Lembar 2" class="kir-image" loading="lazy">
+            <span class="zoom-hint">🔍 Klik untuk Perbesar</span>
+          </div>
         </div>
 
       </div>
     </section>
   </main>
 
+  <!-- MODAL LIGHTBOX FULLSCREEN ZOOM -->
+  <div id="modal-zoom" class="modal-overlay" onclick="tutupZoomLuar(event)">
+    <div class="modal-controls">
+      <button class="modal-btn" onclick="ubahZoom(0.2)">➕ Zoom In</button>
+      <button class="modal-btn" onclick="ubahZoom(-0.2)">➖ Zoom Out</button>
+      <button class="modal-btn" onclick="resetZoom()">🔄 Reset</button>
+      <button class="modal-btn close-btn" onclick="tutupZoom()">✖ Tutup (Esc)</button>
+    </div>
+    <div class="modal-img-wrapper">
+      <img id="img-modal-target" src="" alt="Zoom KIR">
+    </div>
+  </div>
+
   <!-- FOOTER -->
   <footer class="site-footer">
     <p>&copy; 2026 BMD Satpol PP Kota Serang | Hak Cipta Dilindungi</p>
   </footer>
 
-  <!-- JAVASCRIPT LOGIK DUA LEMBAR -->
+  <!-- JAVASCRIPT LOGIK DUA LEMBAR & ZOOM -->
   <script>
-    function gantiRuangan(namaRuangan, gambar1, gambar2) {
+    let scaleSkala = 1;
+
+    function gantiRuangan(namaRuangan, gambar1, gambar2, evt) {
       // 1. Ubah Judul Ruangan
       document.getElementById('judul-ruangan').innerText = 'RUANGAN ' + namaRuangan;
       
@@ -335,22 +452,64 @@
       const labelLembar1 = document.getElementById('label-lembar-1');
 
       if (gambar2 && gambar2 !== '') {
-        // Jika ada lembar kedua: tampilkan lembar 2 & beri label "Lembar 1"
         document.getElementById('gambar-kir-2').src = gambar2;
         containerLembar2.style.display = 'flex';
         labelLembar1.style.display = 'inline-block';
         labelLembar1.innerText = 'Lembar 1';
       } else {
-        // Jika hanya 1 lembar: sembunyikan lembar 2 & sembunyikan tulisan "Lembar 1" agar rapi
         containerLembar2.style.display = 'none';
         labelLembar1.style.display = 'none';
       }
 
-      // 4. Ubah Tampilan Tombol Aktif (Warna Amber)
+      // 4. Ubah Tampilan Tombol Aktif
       const buttons = document.querySelectorAll('.nav-btn');
       buttons.forEach(btn => btn.classList.remove('active'));
-      event.target.classList.add('active');
+      if (evt && evt.target) {
+        evt.target.classList.add('active');
+      }
     }
+
+    // Modal Zoom Logik
+    function bukaZoom(elementId) {
+      const srcGambar = document.getElementById(elementId).src;
+      const imgTarget = document.getElementById('img-modal-target');
+      imgTarget.src = srcGambar;
+      
+      scaleSkala = 1;
+      imgTarget.style.transform = `scale(${scaleSkala})`;
+
+      document.getElementById('modal-zoom').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function ubahZoom(delta) {
+      scaleSkala += delta;
+      if (scaleSkala < 0.5) scaleSkala = 0.5;
+      if (scaleSkala > 3.0) scaleSkala = 3.0;
+      document.getElementById('img-modal-target').style.transform = `scale(${scaleSkala})`;
+    }
+
+    function resetZoom() {
+      scaleSkala = 1;
+      document.getElementById('img-modal-target').style.transform = `scale(${scaleSkala})`;
+    }
+
+    function tutupZoom() {
+      document.getElementById('modal-zoom').classList.remove('active');
+      document.body.style.overflow = 'auto';
+    }
+
+    function tutupZoomLuar(event) {
+      if (event.target.id === 'modal-zoom') {
+        tutupZoom();
+      }
+    }
+
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        tutupZoom();
+      }
+    });
   </script>
 
 </body>
