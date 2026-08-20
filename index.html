@@ -10,8 +10,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- Panzoom Library (File Lokal) -->
-  <script src="panzoom.min.js"></script>
+  <!-- Panzoom Library untuk Zoom Touch Screen Stabil -->
+  <script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
 
   <style>
     /* RESET & BASE STYLES */
@@ -211,7 +211,8 @@
       border-radius: 8px;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
       transition: transform 0.2s ease;
-      will-change: transform;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
     }
 
     .image-container:hover .kir-image {
@@ -243,10 +244,7 @@
       background-color: rgba(15, 23, 42, 0.96);
       backdrop-filter: blur(5px);
       overflow: hidden;
-      /* Dilarang menggerakkan gestures bawaan HP */
       touch-action: none;
-      -webkit-user-select: none;
-      user-select: none;
     }
 
     .modal-overlay.active {
@@ -296,6 +294,7 @@
       background: #dc2626;
     }
 
+    /* TOMBOL NAVIGASI LEMBAR DALAM MODAL */
     .modal-nav-btn {
       position: absolute;
       top: 50%;
@@ -347,8 +346,6 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      will-change: transform;
-      touch-action: none;
     }
 
     .panzoom-wrapper img {
@@ -357,7 +354,8 @@
       object-fit: contain;
       border-radius: 4px;
       box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
-      touch-action: none;
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: high-quality;
     }
 
     /* FOOTER */
@@ -467,14 +465,16 @@
 
   <!-- MODAL FULLSCREEN ZOOM -->
   <div id="modal-zoom" class="modal-overlay">
+    <!-- Kontrol Atas -->
     <div class="modal-controls">
-      <button class="modal-btn" onclick="zoomInSafe()">➕ Zoom In</button>
-      <button class="modal-btn" onclick="zoomOutSafe()">➖ Zoom Out</button>
-      <button class="modal-btn" onclick="resetSafe()">🔄 Reset</button>
+      <button class="modal-btn" onclick="panzoom.zoomIn()">➕ Zoom In</button>
+      <button class="modal-btn" onclick="panzoom.zoomOut()">➖ Zoom Out</button>
+      <button class="modal-btn" onclick="panzoom.reset()">🔄 Reset</button>
       <span class="modal-page-info" id="modal-page-indicator">Hal 1/2</span>
       <button class="modal-btn close-btn" onclick="tutupZoom()">✖ Tutup (Esc)</button>
     </div>
 
+    <!-- Navigasi Panah Samping (Layar Modal) -->
     <button class="modal-nav-btn modal-nav-prev" id="btn-modal-prev" onclick="pindahLembarModal(-1)">❮</button>
     <button class="modal-nav-btn modal-nav-next" id="btn-modal-next" onclick="pindahLembarModal(1)">❯</button>
 
@@ -490,79 +490,44 @@
     <p>&copy; 2026 BMD Satpol PP Kota Serang | Hak Cipta Dilindungi</p>
   </footer>
 
-  <!-- JAVASCRIPT ENGINE -->
+  <!-- JAVASCRIPT LOGIK NAVIGASI MODAL & ZOOM -->
   <script>
-    let panzoomInstance = null;
+    let panzoom;
     let lembarAktifModal = 1;
     let totalLembarRuangan = 1;
 
     const target = document.getElementById('panzoom-target');
     const viewportContainer = document.getElementById('viewport-container');
-    const imgModalTarget = document.getElementById('img-modal-target');
-
-    function cleanupPanzoom() {
-      if (panzoomInstance) {
-        try {
-          viewportContainer.removeEventListener('wheel', panzoomInstance.zoomWithWheel);
-          target.removeEventListener('pointerdown', handlePointerDown);
-          panzoomInstance.destroy();
-        } catch (err) {
-          console.warn('Cleanup error:', err);
-        }
-        panzoomInstance = null;
-      }
-    }
-
-    // Handler khusus untuk memaksa pointer event bekerja dengan Panzoom (Pinch Zoom Fix)
-    function handlePointerDown(event) {
-      if (panzoomInstance) {
-        panzoomInstance.handleDown(event);
-      }
-    }
 
     function initPanzoom() {
-      cleanupPanzoom();
+      if (panzoom) panzoom.destroy();
       
-      panzoomInstance = Panzoom(target, {
-        maxScale: 5,
+      panzoom = Panzoom(target, {
+        maxScale: 6,
         minScale: 1,
         contain: 'outside',
         startScale: 1,
         cursor: 'move',
-        step: 0.3,
-        canvas: true,
-        excludeClass: 'modal-controls'
+        step: 0.3
       });
 
-      // Hubungkan Event Wheel (Mouse Desktop)
-      viewportContainer.addEventListener('wheel', panzoomInstance.zoomWithWheel, { passive: true });
-      
-      // Hubungkan Event Pointer (Sentuhan Layar HP & Pinch Zoom)
-      target.addEventListener('pointerdown', handlePointerDown, { passive: false });
+      viewportContainer.addEventListener('wheel', panzoom.zoomWithWheel);
     }
-
-    function zoomInSafe() { if (panzoomInstance) panzoomInstance.zoomIn(); }
-    function zoomOutSafe() { if (panzoomInstance) panzoomInstance.zoomOut(); }
-    function resetSafe() { if (panzoomInstance) panzoomInstance.reset(); }
 
     function gantiRuangan(namaRuangan, gambar1, gambar2, evt) {
       document.getElementById('judul-ruangan').innerText = 'RUANGAN ' + namaRuangan;
-      
-      const img1 = document.getElementById('gambar-kir-1');
-      const img2 = document.getElementById('gambar-kir-2');
+      document.getElementById('gambar-kir-1').src = gambar1;
+
       const containerLembar2 = document.getElementById('container-lembar-2');
       const labelLembar1 = document.getElementById('label-lembar-1');
 
-      img1.src = gambar1;
-
       if (gambar2 && gambar2 !== '') {
-        img2.src = gambar2;
+        document.getElementById('gambar-kir-2').src = gambar2;
         containerLembar2.style.display = 'flex';
         labelLembar1.style.display = 'inline-block';
         labelLembar1.innerText = 'Lembar 1';
         totalLembarRuangan = 2;
       } else {
-        img2.src = '';
         containerLembar2.style.display = 'none';
         labelLembar1.style.display = 'none';
         totalLembarRuangan = 1;
@@ -584,6 +549,7 @@
 
       setTimeout(() => {
         initPanzoom();
+        panzoom.reset();
       }, 50);
     }
 
@@ -592,15 +558,14 @@
       if (lembarBaru >= 1 && lembarBaru <= totalLembarRuangan) {
         lembarAktifModal = lembarBaru;
         updateTampilanModal();
-        if (panzoomInstance) {
-          panzoomInstance.reset();
-        }
+        if (panzoom) panzoom.reset();
       }
     }
 
     function updateTampilanModal() {
+      const imgTarget = document.getElementById('img-modal-target');
       const srcGambar = document.getElementById('gambar-kir-' + lembarAktifModal).src;
-      imgModalTarget.src = srcGambar;
+      imgTarget.src = srcGambar;
 
       const btnPrev = document.getElementById('btn-modal-prev');
       const btnNext = document.getElementById('btn-modal-next');
@@ -621,15 +586,10 @@
     function tutupZoom() {
       document.getElementById('modal-zoom').classList.remove('active');
       document.body.style.overflow = 'auto';
-
-      cleanupPanzoom();
-      imgModalTarget.src = '';
+      if (panzoom) panzoom.reset();
     }
 
     document.addEventListener('keydown', function(e) {
-      const modal = document.getElementById('modal-zoom');
-      if (!modal.classList.contains('active')) return;
-
       if (e.key === 'Escape') tutupZoom();
       if (e.key === 'ArrowLeft') pindahLembarModal(-1);
       if (e.key === 'ArrowRight') pindahLembarModal(1);
