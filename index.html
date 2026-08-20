@@ -2,13 +2,16 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Sistem Kartu Inventaris Ruangan (KIR) - Satpol PP Kota Serang</title>
   
-  <!-- Google Fonts for Modern Typography -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Panzoom Library untuk Zoom Touch Screen yang Fokus & Stabil -->
+  <script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
 
   <style>
     /* RESET & BASE STYLES */
@@ -208,6 +211,9 @@
       border-radius: 8px;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
       transition: transform 0.2s ease;
+      /* Render tajam untuk gambar */
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: crisp-edges;
     }
 
     .image-container:hover .kir-image {
@@ -227,7 +233,7 @@
       pointer-events: none;
     }
 
-    /* MODAL LIGHTBOX FULLSCREEN ZOOM + PINCH + DRAG */
+    /* MODAL LIGHTBOX FULLSCREEN */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -236,7 +242,7 @@
       top: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(15, 23, 42, 0.94);
+      background-color: rgba(15, 23, 42, 0.96);
       backdrop-filter: blur(5px);
       overflow: hidden;
       touch-action: none;
@@ -288,29 +294,34 @@
       background: #dc2626;
     }
 
+    /* VIEWPORT AREA PANZOOM */
     .modal-img-viewport {
       width: 100vw;
       height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      cursor: grab;
-      user-select: none;
+      overflow: hidden;
       touch-action: none;
     }
 
-    .modal-img-viewport:active {
-      cursor: grabbing;
+    .panzoom-wrapper {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
-    .modal-img-viewport img {
-      max-width: 85vw;
-      max-height: 80vh;
+    .panzoom-wrapper img {
+      max-width: 90vw;
+      max-height: 85vh;
       object-fit: contain;
-      transform-origin: center center;
+      border-radius: 4px;
       box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
-      border-radius: 6px;
-      will-change: transform;
+      /* Optimasi rendering browser */
+      image-rendering: -webkit-optimize-contrast;
+      image-rendering: high-quality;
     }
 
     /* FOOTER */
@@ -415,17 +426,19 @@
     </section>
   </main>
 
-  <!-- MODAL FULLSCREEN ZOOM + TOUCH PINCH-TO-ZOOM -->
+  <!-- MODAL FULLSCREEN ZOOM -->
   <div id="modal-zoom" class="modal-overlay">
     <div class="modal-controls">
-      <button class="modal-btn" onclick="ubahZoom(0.3)">➕ Zoom In</button>
-      <button class="modal-btn" onclick="ubahZoom(-0.3)">➖ Zoom Out</button>
-      <button class="modal-btn" onclick="resetZoom()">🔄 Reset</button>
+      <button class="modal-btn" onclick="panzoom.zoomIn()">➕ Zoom In</button>
+      <button class="modal-btn" onclick="panzoom.zoomOut()">➖ Zoom Out</button>
+      <button class="modal-btn" onclick="panzoom.reset()">🔄 Reset</button>
       <button class="modal-btn close-btn" onclick="tutupZoom()">✖ Tutup (Esc)</button>
     </div>
     
-    <div class="modal-img-viewport" id="viewport-zoom">
-      <img id="img-modal-target" src="" alt="Zoom KIR" draggable="false">
+    <div class="modal-img-viewport">
+      <div class="panzoom-wrapper" id="panzoom-target">
+        <img id="img-modal-target" src="" alt="Zoom KIR">
+      </div>
     </div>
   </div>
 
@@ -434,19 +447,27 @@
     <p>&copy; 2026 BMD Satpol PP Kota Serang | Hak Cipta Dilindungi</p>
   </footer>
 
-  <!-- JAVASCRIPT LOGIK PINCH-TO-ZOOM & PAN -->
+  <!-- JAVASCRIPT LOGIK -->
   <script>
-    let scale = 1;
-    let pointX = 0;
-    let pointY = 0;
-    let startX = 0;
-    let startY = 0;
-    let isDragging = false;
-    let initialPinchDistance = null;
-    let initialScale = 1;
+    let panzoom;
+    const target = document.getElementById('panzoom-target');
 
-    const imgTarget = document.getElementById('img-modal-target');
-    const viewport = document.getElementById('viewport-zoom');
+    // Inisialisasi Panzoom Engine
+    function initPanzoom() {
+      if (panzoom) panzoom.destroy();
+      
+      panzoom = Panzoom(target, {
+        maxScale: 6,
+        minScale: 1,
+        contain: 'outside',
+        startScale: 1,
+        cursor: 'move',
+        step: 0.3
+      });
+
+      // Hubungkan Zoom pakai Wheel Mouse pada Desktop
+      target.parentElement.addEventListener('wheel', panzoom.zoomWithWheel);
+    }
 
     function gantiRuangan(namaRuangan, gambar1, gambar2, evt) {
       document.getElementById('judul-ruangan').innerText = 'RUANGAN ' + namaRuangan;
@@ -472,107 +493,26 @@
       }
     }
 
-    function setTransform() {
-      imgTarget.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
-    }
-
     function bukaZoom(elementId) {
       const srcGambar = document.getElementById(elementId).src;
+      const imgTarget = document.getElementById('img-modal-target');
+      
       imgTarget.src = srcGambar;
-      resetZoom();
       document.getElementById('modal-zoom').classList.add('active');
       document.body.style.overflow = 'hidden';
-    }
 
-    function ubahZoom(delta) {
-      scale += delta;
-      if (scale < 0.8) scale = 0.8;
-      if (scale > 6.0) scale = 6.0;
-      setTransform();
-    }
-
-    function resetZoom() {
-      scale = 1;
-      pointX = 0;
-      pointY = 0;
-      setTransform();
+      // Jalankan Panzoom saat modal terbuka
+      setTimeout(() => {
+        initPanzoom();
+        panzoom.reset();
+      }, 50);
     }
 
     function tutupZoom() {
       document.getElementById('modal-zoom').classList.remove('active');
       document.body.style.overflow = 'auto';
+      if (panzoom) panzoom.reset();
     }
-
-    // Scroll Mouse Zoom
-    viewport.addEventListener('wheel', function(e) {
-      e.preventDefault();
-      let delta = e.deltaY < 0 ? 0.25 : -0.25;
-      ubahZoom(delta);
-    }, { passive: false });
-
-    // Mouse Drag (Desktop)
-    viewport.addEventListener('mousedown', function(e) {
-      if (e.target.closest('.modal-controls')) return;
-      isDragging = true;
-      startX = e.clientX - pointX;
-      startY = e.clientY - pointY;
-    });
-
-    window.addEventListener('mousemove', function(e) {
-      if (!isDragging) return;
-      e.preventDefault();
-      pointX = e.clientX - startX;
-      pointY = e.clientY - startY;
-      setTransform();
-    });
-
-    window.addEventListener('mouseup', function() {
-      isDragging = false;
-    });
-
-    // Touch Handling (1 Jari = Geser, 2 Jari = Pinch to Zoom)
-    function getPinchDistance(touches) {
-      return Math.hypot(
-        touches[0].clientX - touches[1].clientX,
-        touches[0].clientY - touches[1].clientY
-      );
-    }
-
-    viewport.addEventListener('touchstart', function(e) {
-      if (e.touches.length === 1) {
-        isDragging = true;
-        startX = e.touches[0].clientX - pointX;
-        startY = e.touches[0].clientY - pointY;
-      } else if (e.touches.length === 2) {
-        isDragging = false;
-        initialPinchDistance = getPinchDistance(e.touches);
-        initialScale = scale;
-      }
-    }, { passive: false });
-
-    viewport.addEventListener('touchmove', function(e) {
-      if (e.touches.length === 1 && isDragging) {
-        e.preventDefault();
-        pointX = e.touches[0].clientX - startX;
-        pointY = e.touches[0].clientY - startY;
-        setTransform();
-      } else if (e.touches.length === 2 && initialPinchDistance) {
-        e.preventDefault();
-        const currentDistance = getPinchDistance(e.touches);
-        const pinchRatio = currentDistance / initialPinchDistance;
-        scale = Math.min(Math.max(initialScale * pinchRatio, 0.8), 6.0);
-        setTransform();
-      }
-    }, { passive: false });
-
-    viewport.addEventListener('touchend', function(e) {
-      if (e.touches.length < 2) {
-        initialPinchDistance = null;
-      }
-      if (e.touches.length === 0) {
-        isDragging = false;
-      }
-    });
 
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
