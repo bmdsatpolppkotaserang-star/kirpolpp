@@ -44,20 +44,9 @@
       gap: 15px;
     }
 
-    .logo-box {
-      flex-shrink: 0;
-    }
-
-    .logo-box img {
-      max-height: 70px;
-      width: auto;
-      object-fit: contain;
-    }
-
-    .header-title {
-      text-align: center;
-      flex: 1;
-    }
+    .logo-box { flex-shrink: 0; }
+    .logo-box img { max-height: 70px; width: auto; object-fit: contain; }
+    .header-title { text-align: center; flex: 1; }
 
     .badge-tag {
       display: inline-block;
@@ -205,7 +194,6 @@
       letter-spacing: 0.5px;
     }
 
-    /* Container untuk Hover & Klik Zoom */
     .image-container {
       position: relative;
       cursor: zoom-in;
@@ -239,7 +227,7 @@
       pointer-events: none;
     }
 
-    /* MODAL LIGHTBOX (PERBESAR FULLSCREEN) */
+    /* MODAL LIGHTBOX FULLSCREEN ZOOM & DRAG */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -248,23 +236,31 @@
       top: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(15, 23, 42, 0.9);
+      background-color: rgba(15, 23, 42, 0.92);
       backdrop-filter: blur(5px);
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
+      overflow: hidden;
+      touch-action: none;
     }
 
     .modal-overlay.active {
       display: flex;
+      justify-content: center;
+      align-items: center;
     }
 
     .modal-controls {
       position: absolute;
       top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
       display: flex;
       gap: 10px;
-      z-index: 10000;
+      z-index: 10001;
+      background: rgba(30, 41, 59, 0.8);
+      padding: 8px 16px;
+      border-radius: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.3);
     }
 
     .modal-btn {
@@ -274,7 +270,7 @@
       padding: 8px 16px;
       font-size: 0.85rem;
       font-weight: 600;
-      border-radius: 6px;
+      border-radius: 20px;
       cursor: pointer;
       transition: all 0.2s ease;
     }
@@ -292,21 +288,29 @@
       background: #dc2626;
     }
 
-    .modal-img-wrapper {
-      max-width: 90vw;
-      max-height: 85vh;
-      overflow: auto;
+    /* Viewport Tempat Geser Gambar */
+    .modal-img-viewport {
+      width: 100vw;
+      height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
+      cursor: grab;
+      user-select: none;
     }
 
-    .modal-img-wrapper img {
-      max-width: 100%;
-      max-height: 85vh;
-      transition: transform 0.15s ease-out;
-      border-radius: 6px;
+    .modal-img-viewport:active {
+      cursor: grabbing;
+    }
+
+    .modal-img-viewport img {
+      max-width: 85vw;
+      max-height: 80vh;
+      object-fit: contain;
+      transform-origin: center center;
       box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+      border-radius: 6px;
+      will-change: transform;
     }
 
     /* FOOTER */
@@ -324,22 +328,16 @@
     /* RESPONSIVE DESIGN (HP) */
     @media (max-width: 768px) {
       .site-header { padding: 10px 12px; }
-      .header-container {
-        flex-direction: row !important;
-        justify-content: space-between;
-        align-items: center;
-        gap: 6px;
-      }
+      .header-container { flex-direction: row !important; justify-content: space-between; align-items: center; gap: 6px; }
       .logo-box img { max-height: 42px; }
       .badge-tag { font-size: 0.58rem; padding: 1px 6px; margin-bottom: 2px; }
       .header-title h1 { font-size: 0.85rem; line-height: 1.15; }
       .header-title p { font-size: 0.68rem; }
       .main-content { padding: 15px 10px; }
       .card-container { padding: 15px 10px; }
-      .card-header h2 { font-size: 1.1rem; }
       .nav-menu li button { font-size: 0.75rem; padding: 5px 10px; }
-      .modal-controls { top: 10px; flex-wrap: wrap; justify-content: center; }
-      .modal-btn { padding: 6px 12px; font-size: 0.75rem; }
+      .modal-controls { top: 10px; width: 90%; justify-content: center; flex-wrap: wrap; gap: 6px; }
+      .modal-btn { padding: 6px 10px; font-size: 0.72rem; }
     }
   </style>
 </head>
@@ -393,7 +391,7 @@
         <h2 id="judul-ruangan">RUANGAN KASAT</h2>
       </div>
       
-      <!-- WRAPPER GAMBAR (ATAS-BAWAH) -->
+      <!-- WRAPPER GAMBAR -->
       <div class="image-wrapper stack-layout">
         
         <!-- Lembar 1 -->
@@ -418,16 +416,17 @@
     </section>
   </main>
 
-  <!-- MODAL LIGHTBOX FULLSCREEN ZOOM -->
-  <div id="modal-zoom" class="modal-overlay" onclick="tutupZoomLuar(event)">
+  <!-- MODAL LIGHTBOX FULLSCREEN ZOOM + DRAG PAN -->
+  <div id="modal-zoom" class="modal-overlay">
     <div class="modal-controls">
-      <button class="modal-btn" onclick="ubahZoom(0.2)">➕ Zoom In</button>
-      <button class="modal-btn" onclick="ubahZoom(-0.2)">➖ Zoom Out</button>
+      <button class="modal-btn" onclick="ubahZoom(0.3)">➕ Zoom In</button>
+      <button class="modal-btn" onclick="ubahZoom(-0.3)">➖ Zoom Out</button>
       <button class="modal-btn" onclick="resetZoom()">🔄 Reset</button>
       <button class="modal-btn close-btn" onclick="tutupZoom()">✖ Tutup (Esc)</button>
     </div>
-    <div class="modal-img-wrapper">
-      <img id="img-modal-target" src="" alt="Zoom KIR">
+    
+    <div class="modal-img-viewport" id="viewport-zoom">
+      <img id="img-modal-target" src="" alt="Zoom KIR" draggable="false">
     </div>
   </div>
 
@@ -436,18 +435,23 @@
     <p>&copy; 2026 BMD Satpol PP Kota Serang | Hak Cipta Dilindungi</p>
   </footer>
 
-  <!-- JAVASCRIPT LOGIK DUA LEMBAR & ZOOM -->
+  <!-- JAVASCRIPT LOGIK GANTI RUANGAN & PAN-ZOOM INTERAKTIF -->
   <script>
-    let scaleSkala = 1;
+    let scale = 1;
+    let pointX = 0;
+    let pointY = 0;
+    let startX = 0;
+    let startY = 0;
+    let isDragging = false;
 
+    const imgTarget = document.getElementById('img-modal-target');
+    const viewport = document.getElementById('viewport-zoom');
+
+    // 1. Fungsi Ganti Ruangan
     function gantiRuangan(namaRuangan, gambar1, gambar2, evt) {
-      // 1. Ubah Judul Ruangan
       document.getElementById('judul-ruangan').innerText = 'RUANGAN ' + namaRuangan;
-      
-      // 2. Pasang Gambar Lembar 1
       document.getElementById('gambar-kir-1').src = gambar1;
 
-      // 3. Cek Apakah Ada Gambar Lembar 2
       const containerLembar2 = document.getElementById('container-lembar-2');
       const labelLembar1 = document.getElementById('label-lembar-1');
 
@@ -461,7 +465,6 @@
         labelLembar1.style.display = 'none';
       }
 
-      // 4. Ubah Tampilan Tombol Aktif
       const buttons = document.querySelectorAll('.nav-btn');
       buttons.forEach(btn => btn.classList.remove('active'));
       if (evt && evt.target) {
@@ -469,29 +472,35 @@
       }
     }
 
-    // Modal Zoom Logik
+    // 2. Update Posisi & Skala Gambar
+    function setTransform() {
+      imgTarget.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
+    }
+
+    // 3. Buka Modal Zoom
     function bukaZoom(elementId) {
       const srcGambar = document.getElementById(elementId).src;
-      const imgTarget = document.getElementById('img-modal-target');
       imgTarget.src = srcGambar;
       
-      scaleSkala = 1;
-      imgTarget.style.transform = `scale(${scaleSkala})`;
-
+      resetZoom();
       document.getElementById('modal-zoom').classList.add('active');
       document.body.style.overflow = 'hidden';
     }
 
+    // 4. Ubah Zoom via Tombol
     function ubahZoom(delta) {
-      scaleSkala += delta;
-      if (scaleSkala < 0.5) scaleSkala = 0.5;
-      if (scaleSkala > 3.0) scaleSkala = 3.0;
-      document.getElementById('img-modal-target').style.transform = `scale(${scaleSkala})`;
+      let oldScale = scale;
+      scale += delta;
+      if (scale < 0.8) scale = 0.8;
+      if (scale > 5.0) scale = 5.0;
+      setTransform();
     }
 
     function resetZoom() {
-      scaleSkala = 1;
-      document.getElementById('img-modal-target').style.transform = `scale(${scaleSkala})`;
+      scale = 1;
+      pointX = 0;
+      pointY = 0;
+      setTransform();
     }
 
     function tutupZoom() {
@@ -499,12 +508,55 @@
       document.body.style.overflow = 'auto';
     }
 
-    function tutupZoomLuar(event) {
-      if (event.target.id === 'modal-zoom') {
-        tutupZoom();
-      }
-    }
+    // 5. Zoom Pakai Scroll Mouse (Wheel)
+    viewport.addEventListener('wheel', function(e) {
+      e.preventDefault();
+      let delta = e.deltaY < 0 ? 0.25 : -0.25;
+      ubahZoom(delta);
+    }, { passive: false });
 
+    // 6. Logika Geser Gambar (Drag / Pan) untuk Laptop & HP
+    viewport.addEventListener('mousedown', function(e) {
+      if (e.target.closest('.modal-controls')) return;
+      isDragging = true;
+      startX = e.clientX - pointX;
+      startY = e.clientY - pointY;
+    });
+
+    window.addEventListener('mousemove', function(e) {
+      if (!isDragging) return;
+      e.preventDefault();
+      pointX = e.clientX - startX;
+      pointY = e.clientY - startY;
+      setTransform();
+    });
+
+    window.addEventListener('mouseup', function() {
+      isDragging = false;
+    });
+
+    // Fitur Layar Sentuh HP (Touch Screen)
+    viewport.addEventListener('touchstart', function(e) {
+      if (e.touches.length === 1) {
+        isDragging = true;
+        startX = e.touches[0].clientX - pointX;
+        startY = e.touches[0].clientY - pointY;
+      }
+    });
+
+    viewport.addEventListener('touchmove', function(e) {
+      if (isDragging && e.touches.length === 1) {
+        pointX = e.touches[0].clientX - startX;
+        pointY = e.touches[0].clientY - startY;
+        setTransform();
+      }
+    });
+
+    viewport.addEventListener('touchend', function() {
+      isDragging = false;
+    });
+
+    // Keyboard Shortcuts (Esc untuk Tutup)
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
         tutupZoom();
