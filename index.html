@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-  <!-- Panzoom Library untuk Zoom Touch Screen yang Fokus & Stabil -->
+  <!-- Panzoom Library untuk Zoom Touch Screen Stabil -->
   <script src="https://unpkg.com/@panzoom/panzoom@4.5.1/dist/panzoom.min.js"></script>
 
   <style>
@@ -211,7 +211,6 @@
       border-radius: 8px;
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
       transition: transform 0.2s ease;
-      /* Render tajam untuk gambar */
       image-rendering: -webkit-optimize-contrast;
       image-rendering: crisp-edges;
     }
@@ -267,6 +266,7 @@
       border-radius: 30px;
       border: 1px solid rgba(255, 255, 255, 0.1);
       box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+      align-items: center;
     }
 
     .modal-btn {
@@ -294,7 +294,42 @@
       background: #dc2626;
     }
 
-    /* VIEWPORT AREA PANZOOM */
+    /* TOMBOL NAVIGASI LEMBAR DALAM MODAL */
+    .modal-nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 10001;
+      background: rgba(30, 41, 59, 0.8);
+      color: #ffffff;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      font-size: 1.2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+    }
+
+    .modal-nav-btn:hover {
+      background: #0284c7;
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .modal-nav-prev { left: 20px; }
+    .modal-nav-next { right: 20px; }
+
+    .modal-page-info {
+      color: #38bdf8;
+      font-size: 0.85rem;
+      font-weight: 700;
+      padding: 0 8px;
+    }
+
     .modal-img-viewport {
       width: 100vw;
       height: 100vh;
@@ -319,7 +354,6 @@
       object-fit: contain;
       border-radius: 4px;
       box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
-      /* Optimasi rendering browser */
       image-rendering: -webkit-optimize-contrast;
       image-rendering: high-quality;
     }
@@ -347,8 +381,11 @@
       .main-content { padding: 15px 10px; }
       .card-container { padding: 15px 10px; }
       .nav-menu li button { font-size: 0.75rem; padding: 5px 10px; }
-      .modal-controls { top: 10px; width: 92%; justify-content: center; flex-wrap: wrap; gap: 6px; }
-      .modal-btn { padding: 6px 10px; font-size: 0.72rem; }
+      .modal-controls { top: 10px; width: 95%; justify-content: center; flex-wrap: wrap; gap: 4px; padding: 6px 10px; }
+      .modal-btn { padding: 5px 8px; font-size: 0.7rem; }
+      .modal-nav-btn { width: 38px; height: 38px; font-size: 1rem; }
+      .modal-nav-prev { left: 8px; }
+      .modal-nav-next { right: 8px; }
     }
   </style>
 </head>
@@ -407,7 +444,7 @@
         <!-- Lembar 1 -->
         <div class="kir-item" id="container-lembar-1">
           <span class="page-label" id="label-lembar-1">Lembar 1</span>
-          <div class="image-container" onclick="bukaZoom('gambar-kir-1')">
+          <div class="image-container" onclick="bukaZoom(1)">
             <img id="gambar-kir-1" src="kasat.png" alt="Gambar KIR Lembar 1" class="kir-image" loading="lazy">
             <span class="zoom-hint">🔍 Klik untuk Perbesar</span>
           </div>
@@ -416,7 +453,7 @@
         <!-- Lembar 2 -->
         <div class="kir-item" id="container-lembar-2" style="display: none;">
           <span class="page-label">Lembar 2</span>
-          <div class="image-container" onclick="bukaZoom('gambar-kir-2')">
+          <div class="image-container" onclick="bukaZoom(2)">
             <img id="gambar-kir-2" src="" alt="Gambar KIR Lembar 2" class="kir-image" loading="lazy">
             <span class="zoom-hint">🔍 Klik untuk Perbesar</span>
           </div>
@@ -428,14 +465,20 @@
 
   <!-- MODAL FULLSCREEN ZOOM -->
   <div id="modal-zoom" class="modal-overlay">
+    <!-- Kontrol Atas -->
     <div class="modal-controls">
       <button class="modal-btn" onclick="panzoom.zoomIn()">➕ Zoom In</button>
       <button class="modal-btn" onclick="panzoom.zoomOut()">➖ Zoom Out</button>
       <button class="modal-btn" onclick="panzoom.reset()">🔄 Reset</button>
+      <span class="modal-page-info" id="modal-page-indicator">Hal 1/2</span>
       <button class="modal-btn close-btn" onclick="tutupZoom()">✖ Tutup (Esc)</button>
     </div>
-    
-    <div class="modal-img-viewport">
+
+    <!-- Navigasi Panah Samping (Layar Modal) -->
+    <button class="modal-nav-btn modal-nav-prev" id="btn-modal-prev" onclick="pindahLembarModal(-1)">❮</button>
+    <button class="modal-nav-btn modal-nav-next" id="btn-modal-next" onclick="pindahLembarModal(1)">❯</button>
+
+    <div class="modal-img-viewport" id="viewport-container">
       <div class="panzoom-wrapper" id="panzoom-target">
         <img id="img-modal-target" src="" alt="Zoom KIR">
       </div>
@@ -447,12 +490,15 @@
     <p>&copy; 2026 BMD Satpol PP Kota Serang | Hak Cipta Dilindungi</p>
   </footer>
 
-  <!-- JAVASCRIPT LOGIK -->
+  <!-- JAVASCRIPT LOGIK NAVIGASI MODAL & ZOOM -->
   <script>
     let panzoom;
-    const target = document.getElementById('panzoom-target');
+    let lembarAktifModal = 1;
+    let totalLembarRuangan = 1;
 
-    // Inisialisasi Panzoom Engine
+    const target = document.getElementById('panzoom-target');
+    const viewportContainer = document.getElementById('viewport-container');
+
     function initPanzoom() {
       if (panzoom) panzoom.destroy();
       
@@ -465,8 +511,7 @@
         step: 0.3
       });
 
-      // Hubungkan Zoom pakai Wheel Mouse pada Desktop
-      target.parentElement.addEventListener('wheel', panzoom.zoomWithWheel);
+      viewportContainer.addEventListener('wheel', panzoom.zoomWithWheel);
     }
 
     function gantiRuangan(namaRuangan, gambar1, gambar2, evt) {
@@ -481,9 +526,11 @@
         containerLembar2.style.display = 'flex';
         labelLembar1.style.display = 'inline-block';
         labelLembar1.innerText = 'Lembar 1';
+        totalLembarRuangan = 2;
       } else {
         containerLembar2.style.display = 'none';
         labelLembar1.style.display = 'none';
+        totalLembarRuangan = 1;
       }
 
       const buttons = document.querySelectorAll('.nav-btn');
@@ -493,19 +540,47 @@
       }
     }
 
-    function bukaZoom(elementId) {
-      const srcGambar = document.getElementById(elementId).src;
-      const imgTarget = document.getElementById('img-modal-target');
-      
-      imgTarget.src = srcGambar;
+    function bukaZoom(nomorLembar) {
+      lembarAktifModal = nomorLembar;
+      updateTampilanModal();
+
       document.getElementById('modal-zoom').classList.add('active');
       document.body.style.overflow = 'hidden';
 
-      // Jalankan Panzoom saat modal terbuka
       setTimeout(() => {
         initPanzoom();
         panzoom.reset();
       }, 50);
+    }
+
+    function pindahLembarModal(direction) {
+      let lembarBaru = lembarAktifModal + direction;
+      if (lembarBaru >= 1 && lembarBaru <= totalLembarRuangan) {
+        lembarAktifModal = lembarBaru;
+        updateTampilanModal();
+        if (panzoom) panzoom.reset();
+      }
+    }
+
+    function updateTampilanModal() {
+      const imgTarget = document.getElementById('img-modal-target');
+      const srcGambar = document.getElementById('gambar-kir-' + lembarAktifModal).src;
+      imgTarget.src = srcGambar;
+
+      const btnPrev = document.getElementById('btn-modal-prev');
+      const btnNext = document.getElementById('btn-modal-next');
+      const indicator = document.getElementById('modal-page-indicator');
+
+      if (totalLembarRuangan > 1) {
+        btnPrev.style.display = lembarAktifModal === 1 ? 'none' : 'flex';
+        btnNext.style.display = lembarAktifModal === totalLembarRuangan ? 'none' : 'flex';
+        indicator.style.display = 'inline-block';
+        indicator.innerText = `Hal ${lembarAktifModal}/${totalLembarRuangan}`;
+      } else {
+        btnPrev.style.display = 'none';
+        btnNext.style.display = 'none';
+        indicator.style.display = 'none';
+      }
     }
 
     function tutupZoom() {
@@ -515,9 +590,9 @@
     }
 
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') {
-        tutupZoom();
-      }
+      if (e.key === 'Escape') tutupZoom();
+      if (e.key === 'ArrowLeft') pindahLembarModal(-1);
+      if (e.key === 'ArrowRight') pindahLembarModal(1);
     });
   </script>
 
