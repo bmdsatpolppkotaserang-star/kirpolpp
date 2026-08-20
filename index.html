@@ -3,8 +3,247 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistem Kartu Inventaris Ruangan (KIR)</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Sistem Kartu Inventaris Ruangan (KIR) - Satpol PP Kota Serang</title>
+  
+  <!-- Google Fonts for Modern Typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* RESET & BASE STYLES */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    }
+
+    body {
+      background-color: #f1f5f9;
+      color: #1e293b;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    /* HEADER */
+    .site-header {
+      background: #ffffff;
+      border-bottom: 3px solid #0284c7;
+      padding: 16px 20px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
+    }
+
+    .header-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .logo-box {
+      flex-shrink: 0;
+    }
+
+    .logo-box img {
+      max-height: 70px;
+      width: auto;
+      object-fit: contain;
+    }
+
+    .header-title {
+      text-align: center;
+      flex: 1;
+    }
+
+    .badge-tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: #0284c7;
+      background-color: #e0f2fe;
+      padding: 2px 10px;
+      border-radius: 12px;
+      margin-bottom: 4px;
+    }
+
+    .header-title h1 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .header-title p {
+      font-size: 0.88rem;
+      color: #64748b;
+      font-weight: 600;
+      margin-top: 2px;
+    }
+
+    /* NAVIGASI RUANGAN */
+    .site-nav {
+      background-color: #0f172a;
+      padding: 12px 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .nav-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .nav-label {
+      color: #94a3b8;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .nav-menu {
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .nav-menu li button {
+      background-color: #1e293b;
+      color: #cbd5e1;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 6px 14px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .nav-menu li button:hover {
+      background-color: #0284c7;
+      color: #ffffff;
+      transform: translateY(-1px);
+    }
+
+    .nav-menu li button.active {
+      background-color: #d97706;
+      color: #ffffff;
+      font-weight: 700;
+      border-color: #d97706;
+      box-shadow: 0 4px 12px rgba(217, 119, 6, 0.3);
+    }
+
+    /* KONTEN UTAMA */
+    .main-content {
+      flex: 1;
+      padding: 28px 20px;
+      max-width: 1200px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .card-container {
+      background: #ffffff;
+      padding: 28px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+      border: 1px solid #e2e8f0;
+    }
+
+    .card-header {
+      text-align: center;
+      margin-bottom: 24px;
+      border-bottom: 2px dashed #e2e8f0;
+      padding-bottom: 14px;
+    }
+
+    .card-header h2 {
+      font-size: 1.3rem;
+      color: #0f172a;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    /* STACK LAYOUT GAMBAR */
+    .image-wrapper.stack-layout {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 30px;
+    }
+
+    .kir-item {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .page-label {
+      display: inline-block;
+      font-weight: 700;
+      color: #0284c7;
+      font-size: 0.8rem;
+      margin-bottom: 10px;
+      background-color: #e0f2fe;
+      padding: 4px 14px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .kir-image {
+      max-width: 100%;
+      height: auto;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+    }
+
+    /* FOOTER */
+    .site-footer {
+      background-color: #0f172a;
+      color: #64748b;
+      text-align: center;
+      padding: 18px 20px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      margin-top: auto;
+      border-top: 1px solid #1e293b;
+    }
+
+    /* RESPONSIVE DESIGN (HP) */
+    @media (max-width: 768px) {
+      .site-header { padding: 10px 12px; }
+      .header-container {
+        flex-direction: row !important;
+        justify-content: space-between;
+        align-items: center;
+        gap: 6px;
+      }
+      .logo-box img { max-height: 42px; }
+      .badge-tag { font-size: 0.58rem; padding: 1px 6px; margin-bottom: 2px; }
+      .header-title h1 { font-size: 0.85rem; line-height: 1.15; }
+      .header-title p { font-size: 0.68rem; }
+      .main-content { padding: 15px 10px; }
+      .card-container { padding: 15px 10px; }
+      .card-header h2 { font-size: 1.1rem; }
+      .nav-menu li button { font-size: 0.75rem; padding: 5px 10px; }
+    }
+  </style>
 </head>
 <body>
 
@@ -12,16 +251,17 @@
   <header class="site-header">
     <div class="header-container">
       <div class="logo-box logo-left">
-        <img src="kotaserang.png" alt="Logo Kiri">
+        <img src="kotaserang.png" alt="Logo Kota Serang">
       </div>
       
       <div class="header-title">
+        <span class="badge-tag">Sistem Informasi Inventaris</span>
         <h1>KARTU INVENTARIS RUANGAN (KIR)</h1>
         <p>Satuan Polisi Pamong Praja Kota Serang</p>
       </div>
 
       <div class="logo-box logo-right">
-        <img src="polpp.png" alt="Logo Kanan">
+        <img src="polpp.png" alt="Logo Satpol PP">
       </div>
     </div>
   </header>
@@ -29,21 +269,23 @@
   <!-- NAVIGASI / MENU RUANGAN -->
   <nav class="site-nav">
     <div class="nav-container">
-      <span class="nav-label">Pilih Ruangan:</span>
+      <span class="nav-label">📍 Pilih Ruangan Kerja:</span>
       <ul class="nav-menu">
-        <li><a href="index.html" class="active">KASAT</a></li>
-        <li><a href="kir-umpeg.html">UMPEG</a></li>
-        <li><a href="kir-keuangan.html">KEUANGAN</a></li>
-        <li><a href="kir-sekretaris.html">SEKRETARIS</a></li>
-        <li><a href="kir-linmas.html">LINMAS</a></li>
-        <li><a href="kir-trantibum.html">TRANTIBUM</a></li>
-        <li><a href="kir-aset.html">ASET</a></li>
-        <li><a href="kir-gudang.html">GUDANG</a></li>
-        <li><a href="kir-rapat.html">RAPAT</a></li>
-        <li><a href="kir-ppns.html">PPNS</a></li>
-        <li><a href="kir-dalops.html">DALOPS</a></li>
-        <li><a href="kir-pep.html">PEP</a></li>
-        <li><a href="kir-resepsionis.html">RESEPSIONIS</a></li>
+        <!-- format gantiRuangan('NAMA', 'gambar1.png', 'gambar2.png') -->
+        <!-- Jika hanya 1 lembar, isi parameter ketiga dengan '' atau null -->
+        <li><button class="nav-btn active" onclick="gantiRuangan('KASAT', 'kasat.png', '')">KASAT</button></li>
+        <li><button class="nav-btn" onclick="gantiRuangan('UMPEG', 'umpeg-1.png', 'umpeg-2.png')">UMPEG</button></li>
+        <li><button class="nav-btn" onclick="gantiRuangan('KEUANGAN', 'keuangan-1.png', 'keuangan-2.png')">KEUANGAN</button></li>
+        <li><button class="nav-btn" onclick="gantiRuangan('SEKRETARIS', 'sekretaris.png', '')">SEKRETARIS</button></li>
+        <li><button class="nav-btn" onclick="gantiRuangan('LINMAS', 'linmas-1.png', 'linmas-2.png')">LINMAS</button></li>
+        <li><button class="nav-btn" onclick="gantiRuangan('TRANTIBUM', 'trantibum-1.png', 'trantibum-2.png')">TRANTIBUM</button></li>
+        <li><button class="nav-btn" onclick="gantiRuangan('ASET', 'aset-1.png', 'aset-2.png')">ASET</button></li>
+        <li><button class="nav-btn" onclick="gantiRuangan('GUDANG', 'gudang-1.png', 'gudang-2.png')">GUDANG</button></li>
+        <li><button class="nav-btn" onclick="gantiRuangan('RAPAT', 'rapat.png', '')">RAPAT</button></li>
+        <li><button class="nav-btn" onclick="gantiRuangan('PPNS', 'ppns.png', '')">PPNS</button></li>
+        <li><button class="nav-btn" onclick="gantiRuangan('DALOPS', 'dalops.png', '')">DALOPS</button></li>
+        <li><button class="nav-btn" onclick="gantiRuangan('PEP', 'pep.png', '')">PEP</button></li>
+        <li><button class="nav-btn" onclick="gantiRuangan('RESEPSIONIS', 'resepsionis.png', '')">RESEPSIONIS</button></li>
       </ul>
     </div>
   </nav>
@@ -52,18 +294,24 @@
   <main class="main-content">
     <section class="card-container">
       <div class="card-header">
-        <h2>RUANGAN KASAT</h2>
+        <h2 id="judul-ruangan">RUANGAN KASAT</h2>
       </div>
       
-      <!-- WRAPPER GAMBAR DUA LEMBAR (ATAS-BAWAH) -->
+      <!-- WRAPPER GAMBAR (ATAS-BAWAH) -->
       <div class="image-wrapper stack-layout">
         
-        <!-- Lembar 1 -->
-        <div class="kir-item">
-          <span class="page-label">Lembar 1</span>
-          <img src="kasat.png" alt="Gambar KIR Ruang KASAT Lembar 1" class="kir-image">
+        <!-- Lembar 1 (Selalu Muncul) -->
+        <div class="kir-item" id="container-lembar-1">
+          <span class="page-label" id="label-lembar-1">Lembar 1</span>
+          <img id="gambar-kir-1" src="kasat.png" alt="Gambar KIR Lembar 1" class="kir-image">
         </div>
-        
+
+        <!-- Lembar 2 (Otomatis Sembunyi Jika Tidak Ada Gambar) -->
+        <div class="kir-item" id="container-lembar-2" style="display: none;">
+          <span class="page-label">Lembar 2</span>
+          <img id="gambar-kir-2" src="" alt="Gambar KIR Lembar 2" class="kir-image">
+        </div>
+
       </div>
     </section>
   </main>
@@ -72,6 +320,38 @@
   <footer class="site-footer">
     <p>&copy; 2026 BMD Satpol PP Kota Serang | Hak Cipta Dilindungi</p>
   </footer>
+
+  <!-- JAVASCRIPT LOGIK DUA LEMBAR -->
+  <script>
+    function gantiRuangan(namaRuangan, gambar1, gambar2) {
+      // 1. Ubah Judul Ruangan
+      document.getElementById('judul-ruangan').innerText = 'RUANGAN ' + namaRuangan;
+      
+      // 2. Pasang Gambar Lembar 1
+      document.getElementById('gambar-kir-1').src = gambar1;
+
+      // 3. Cek Apakah Ada Gambar Lembar 2
+      const containerLembar2 = document.getElementById('container-lembar-2');
+      const labelLembar1 = document.getElementById('label-lembar-1');
+
+      if (gambar2 && gambar2 !== '') {
+        // Jika ada lembar kedua: tampilkan lembar 2 & beri label "Lembar 1"
+        document.getElementById('gambar-kir-2').src = gambar2;
+        containerLembar2.style.display = 'flex';
+        labelLembar1.style.display = 'inline-block';
+        labelLembar1.innerText = 'Lembar 1';
+      } else {
+        // Jika hanya 1 lembar: sembunyikan lembar 2 & sembunyikan tulisan "Lembar 1" agar rapi
+        containerLembar2.style.display = 'none';
+        labelLembar1.style.display = 'none';
+      }
+
+      // 4. Ubah Tampilan Tombol Aktif (Warna Amber)
+      const buttons = document.querySelectorAll('.nav-btn');
+      buttons.forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+  </script>
 
 </body>
 </html>
