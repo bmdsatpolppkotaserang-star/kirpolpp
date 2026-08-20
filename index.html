@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <title>Sistem Kartu Inventaris Ruangan (KIR) - Satpol PP Kota Serang</title>
   
   <!-- Google Fonts for Modern Typography -->
@@ -227,7 +227,7 @@
       pointer-events: none;
     }
 
-    /* MODAL LIGHTBOX FULLSCREEN ZOOM & DRAG */
+    /* MODAL LIGHTBOX FULLSCREEN ZOOM + PINCH + DRAG */
     .modal-overlay {
       display: none;
       position: fixed;
@@ -236,7 +236,7 @@
       top: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(15, 23, 42, 0.92);
+      background-color: rgba(15, 23, 42, 0.94);
       backdrop-filter: blur(5px);
       overflow: hidden;
       touch-action: none;
@@ -256,7 +256,7 @@
       display: flex;
       gap: 10px;
       z-index: 10001;
-      background: rgba(30, 41, 59, 0.8);
+      background: rgba(30, 41, 59, 0.85);
       padding: 8px 16px;
       border-radius: 30px;
       border: 1px solid rgba(255, 255, 255, 0.1);
@@ -288,7 +288,6 @@
       background: #dc2626;
     }
 
-    /* Viewport Tempat Geser Gambar */
     .modal-img-viewport {
       width: 100vw;
       height: 100vh;
@@ -297,6 +296,7 @@
       align-items: center;
       cursor: grab;
       user-select: none;
+      touch-action: none;
     }
 
     .modal-img-viewport:active {
@@ -336,7 +336,7 @@
       .main-content { padding: 15px 10px; }
       .card-container { padding: 15px 10px; }
       .nav-menu li button { font-size: 0.75rem; padding: 5px 10px; }
-      .modal-controls { top: 10px; width: 90%; justify-content: center; flex-wrap: wrap; gap: 6px; }
+      .modal-controls { top: 10px; width: 92%; justify-content: center; flex-wrap: wrap; gap: 6px; }
       .modal-btn { padding: 6px 10px; font-size: 0.72rem; }
     }
   </style>
@@ -362,7 +362,7 @@
     </div>
   </header>
 
-  <!-- NAVIGASI / MENU RUANGAN -->
+  <!-- NAVIGASI RUANGAN -->
   <nav class="site-nav">
     <div class="nav-container">
       <span class="nav-label">📍 Pilih Ruangan Kerja:</span>
@@ -391,7 +391,6 @@
         <h2 id="judul-ruangan">RUANGAN KASAT</h2>
       </div>
       
-      <!-- WRAPPER GAMBAR -->
       <div class="image-wrapper stack-layout">
         
         <!-- Lembar 1 -->
@@ -416,7 +415,7 @@
     </section>
   </main>
 
-  <!-- MODAL LIGHTBOX FULLSCREEN ZOOM + DRAG PAN -->
+  <!-- MODAL FULLSCREEN ZOOM + TOUCH PINCH-TO-ZOOM -->
   <div id="modal-zoom" class="modal-overlay">
     <div class="modal-controls">
       <button class="modal-btn" onclick="ubahZoom(0.3)">➕ Zoom In</button>
@@ -435,7 +434,7 @@
     <p>&copy; 2026 BMD Satpol PP Kota Serang | Hak Cipta Dilindungi</p>
   </footer>
 
-  <!-- JAVASCRIPT LOGIK GANTI RUANGAN & PAN-ZOOM INTERAKTIF -->
+  <!-- JAVASCRIPT LOGIK PINCH-TO-ZOOM & PAN -->
   <script>
     let scale = 1;
     let pointX = 0;
@@ -443,11 +442,12 @@
     let startX = 0;
     let startY = 0;
     let isDragging = false;
+    let initialPinchDistance = null;
+    let initialScale = 1;
 
     const imgTarget = document.getElementById('img-modal-target');
     const viewport = document.getElementById('viewport-zoom');
 
-    // 1. Fungsi Ganti Ruangan
     function gantiRuangan(namaRuangan, gambar1, gambar2, evt) {
       document.getElementById('judul-ruangan').innerText = 'RUANGAN ' + namaRuangan;
       document.getElementById('gambar-kir-1').src = gambar1;
@@ -472,27 +472,22 @@
       }
     }
 
-    // 2. Update Posisi & Skala Gambar
     function setTransform() {
       imgTarget.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
     }
 
-    // 3. Buka Modal Zoom
     function bukaZoom(elementId) {
       const srcGambar = document.getElementById(elementId).src;
       imgTarget.src = srcGambar;
-      
       resetZoom();
       document.getElementById('modal-zoom').classList.add('active');
       document.body.style.overflow = 'hidden';
     }
 
-    // 4. Ubah Zoom via Tombol
     function ubahZoom(delta) {
-      let oldScale = scale;
       scale += delta;
       if (scale < 0.8) scale = 0.8;
-      if (scale > 5.0) scale = 5.0;
+      if (scale > 6.0) scale = 6.0;
       setTransform();
     }
 
@@ -508,14 +503,14 @@
       document.body.style.overflow = 'auto';
     }
 
-    // 5. Zoom Pakai Scroll Mouse (Wheel)
+    // Scroll Mouse Zoom
     viewport.addEventListener('wheel', function(e) {
       e.preventDefault();
       let delta = e.deltaY < 0 ? 0.25 : -0.25;
       ubahZoom(delta);
     }, { passive: false });
 
-    // 6. Logika Geser Gambar (Drag / Pan) untuk Laptop & HP
+    // Mouse Drag (Desktop)
     viewport.addEventListener('mousedown', function(e) {
       if (e.target.closest('.modal-controls')) return;
       isDragging = true;
@@ -535,28 +530,50 @@
       isDragging = false;
     });
 
-    // Fitur Layar Sentuh HP (Touch Screen)
+    // Touch Handling (1 Jari = Geser, 2 Jari = Pinch to Zoom)
+    function getPinchDistance(touches) {
+      return Math.hypot(
+        touches[0].clientX - touches[1].clientX,
+        touches[0].clientY - touches[1].clientY
+      );
+    }
+
     viewport.addEventListener('touchstart', function(e) {
       if (e.touches.length === 1) {
         isDragging = true;
         startX = e.touches[0].clientX - pointX;
         startY = e.touches[0].clientY - pointY;
+      } else if (e.touches.length === 2) {
+        isDragging = false;
+        initialPinchDistance = getPinchDistance(e.touches);
+        initialScale = scale;
       }
-    });
+    }, { passive: false });
 
     viewport.addEventListener('touchmove', function(e) {
-      if (isDragging && e.touches.length === 1) {
+      if (e.touches.length === 1 && isDragging) {
+        e.preventDefault();
         pointX = e.touches[0].clientX - startX;
         pointY = e.touches[0].clientY - startY;
         setTransform();
+      } else if (e.touches.length === 2 && initialPinchDistance) {
+        e.preventDefault();
+        const currentDistance = getPinchDistance(e.touches);
+        const pinchRatio = currentDistance / initialPinchDistance;
+        scale = Math.min(Math.max(initialScale * pinchRatio, 0.8), 6.0);
+        setTransform();
+      }
+    }, { passive: false });
+
+    viewport.addEventListener('touchend', function(e) {
+      if (e.touches.length < 2) {
+        initialPinchDistance = null;
+      }
+      if (e.touches.length === 0) {
+        isDragging = false;
       }
     });
 
-    viewport.addEventListener('touchend', function() {
-      isDragging = false;
-    });
-
-    // Keyboard Shortcuts (Esc untuk Tutup)
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
         tutupZoom();
